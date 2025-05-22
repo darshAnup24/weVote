@@ -1,7 +1,7 @@
 
 import type { Candidate } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RadioGroupItem } from "@/components/ui/radio-group"; // RadioGroup itself is not needed if Card is clickable
+import { RadioGroupItem } from "@/components/ui/radio-group"; 
 import Image from 'next/image';
 import { cn } from "@/lib/utils";
 
@@ -9,20 +9,29 @@ interface CandidateCardProps {
   candidate: Candidate;
   isSelected: boolean;
   onSelect: (candidateId: string) => void;
+  disabled?: boolean;
 }
 
-export function CandidateCard({ candidate, isSelected, onSelect }: CandidateCardProps) {
+export function CandidateCard({ candidate, isSelected, onSelect, disabled = false }: CandidateCardProps) {
+  const handleSelect = () => {
+    if (!disabled) {
+      onSelect(candidate.id);
+    }
+  };
+
   return (
     <Card 
       className={cn(
-        "cursor-pointer transition-all duration-200 ease-in-out shadow-md hover:shadow-lg",
-        isSelected ? "ring-2 ring-primary border-primary bg-primary/5" : "border-border"
+        "transition-all duration-200 ease-in-out shadow-md",
+        disabled ? "opacity-60 cursor-not-allowed bg-muted/50" : "cursor-pointer hover:shadow-lg",
+        isSelected && !disabled ? "ring-2 ring-primary border-primary bg-primary/5" : "border-border"
       )}
-      onClick={() => onSelect(candidate.id)}
+      onClick={handleSelect}
+      onKeyDown={(e) => { if (!disabled && (e.key === 'Enter' || e.key === ' ')) handleSelect(); }}
       role="radio"
       aria-checked={isSelected}
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSelect(candidate.id); }}
+      aria-disabled={disabled}
+      tabIndex={disabled ? -1 : 0}
     >
       <CardHeader className="flex flex-row items-start gap-4 p-4">
         {candidate.imageUrl && (
@@ -39,8 +48,13 @@ export function CandidateCard({ candidate, isSelected, onSelect }: CandidateCard
           <CardTitle className="text-lg font-medium">{candidate.name}</CardTitle>
           <CardDescription className="text-xs mt-1">{candidate.description}</CardDescription>
         </div>
-        {/* The RadioGroupItem provides a visual cue and accessibility for the selection state */}
-        <RadioGroupItem value={candidate.id} checked={isSelected} aria-label={`Select ${candidate.name}`} id={`candidate-radio-${candidate.id}`} />
+        <RadioGroupItem 
+            value={candidate.id} 
+            checked={isSelected} 
+            aria-label={`Select ${candidate.name}`} 
+            id={`candidate-radio-${candidate.id}`}
+            disabled={disabled}
+        />
       </CardHeader>
     </Card>
   );

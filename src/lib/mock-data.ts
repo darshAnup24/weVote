@@ -1,9 +1,10 @@
-import type { Election, ForumPost, User } from './types';
+import type { Election, ForumPost, User, VoteRecord } from './types';
 
 export const mockCurrentUser: User | null = {
   id: 'user-123',
   email: 'test@example.com',
   name: 'Test User',
+  votedInElections: [], // Initialize as empty, will be updated by actions/state
 };
 // To simulate a logged-out state, set mockCurrentUser to null
 // export const mockCurrentUser: User | null = null;
@@ -20,7 +21,7 @@ export const mockElections: Election[] = [
       { id: 'cand-1c', name: 'Charlie Brown', description: 'Advocating for environmental protection and social justice.', imageUrl: 'https://placehold.co/300x300.png', dataAiHint: 'person thinking' },
     ],
     startDate: new Date('2024-10-01T00:00:00Z'),
-    endDate: new Date('2024-11-05T23:59:59Z'),
+    endDate: new Date('2029-11-05T23:59:59Z'), // Extended for testing
     status: 'ongoing',
     allowedVoters: ['test@example.com', 'voter1@example.com', 'voter2@example.com'],
     imageUrl: 'https://placehold.co/600x300.png?text=Presidential+Election+2024',
@@ -49,8 +50,8 @@ export const mockElections: Election[] = [
       { id: 'cand-3a', name: 'Diana Prince', description: 'Experienced educator with a focus on STEM.', dataAiHint: 'teacher classroom' },
       { id: 'cand-3b', name: 'Edward Nigma', description: 'Community leader advocating for arts programs.', dataAiHint: 'community leader' },
     ],
-    startDate: new Date('2024-12-01T00:00:00Z'),
-    endDate: new Date('2024-12-15T23:59:59Z'),
+    startDate: new Date('2025-01-01T00:00:00Z'), // Future date
+    endDate: new Date('2025-01-15T23:59:59Z'),
     status: 'upcoming',
     allowedVoters: ['parent@example.com', 'teacher@example.com', 'test@example.com'],
     imageUrl: 'https://placehold.co/600x300.png?text=School+Board+Election',
@@ -86,3 +87,6 @@ export const initialMockForumPosts: ForumPost[] = [
     flagReason: 'Potential bias and spam-like content.',
   },
 ];
+
+// In-memory store for recorded votes (simulates a database)
+export const mockUserVotes: VoteRecord[] = [];

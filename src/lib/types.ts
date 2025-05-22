@@ -35,4 +35,13 @@ export interface User {
   id: string;
   email: string;
   name?: string;
+  votedInElections?: string[]; // Array of election IDs the user has voted in
+}
+
+// To store vote counts and who voted for whom (simplified)
+export interface VoteRecord {
+  electionId: string;
+  userId: string;
+  candidateId: string;
+  timestamp: Date;
 }
