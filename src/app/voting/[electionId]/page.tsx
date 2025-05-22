@@ -17,6 +17,7 @@ import { NewPostForm } from '@/components/discussions/new-post-form';
 import { ForumPostCard } from '@/components/discussions/forum-post-card';
 import { getForumPosts } from '@/actions/forum-actions'; // To fetch posts for this election
 import { Separator } from '@/components/ui/separator';
+import { RadioGroup } from "@/components/ui/radio-group"; // Import RadioGroup
 
 export default function ElectionVotingPage() {
   const params = useParams();
@@ -153,16 +154,20 @@ export default function ElectionVotingPage() {
 
 
       <h3 className="text-xl font-semibold mb-4">Select Your Choice:</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <RadioGroup
+        value={selectedCandidate || ""}
+        onValueChange={setSelectedCandidate}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"
+      >
         {election.candidates.map((candidate: Candidate) => (
           <CandidateCard
             key={candidate.id}
             candidate={candidate}
             isSelected={selectedCandidate === candidate.id}
-            onSelect={() => setSelectedCandidate(candidate.id)}
+            onSelect={() => setSelectedCandidate(candidate.id)} // Kept for Card click, RadioGroup handles item selection
           />
         ))}
-      </div>
+      </RadioGroup>
       <Button 
         size="lg" 
         className="w-full bg-accent text-accent-foreground hover:bg-accent/90" 
@@ -245,3 +250,4 @@ export default function ElectionVotingPage() {
     </div>
   );
 }
+
