@@ -1,12 +1,15 @@
+
 "use server";
 
 import { revalidatePath } from "next/cache";
 import { moderateForumPost, type ModerateForumPostInput, type ModerateForumPostOutput } from "@/ai/flows/moderate-forum-posts";
 import type { ForumPost } from "@/lib/types";
+import { initialMockForumPosts } from "@/lib/mock-data"; // Using initial data to populate
 
 // In a real application, this would interact with a database.
-// For now, we'll just simulate the process.
-let mockPostsDb: ForumPost[] = []; // This is just for demonstration and will reset on server restart.
+// For now, we'll simulate the process with an in-memory array.
+// Initialize with some mock data.
+let mockPostsDb: ForumPost[] = [...initialMockForumPosts];
 
 interface CreatePostResult {
   success: boolean;
@@ -16,7 +19,10 @@ interface CreatePostResult {
   error?: string;
 }
 
-export async function createForumPost(content: string): Promise<CreatePostResult> {
+export async function createForumPost(electionId: string, content: string): Promise<CreatePostResult> {
+  if (!electionId) {
+    return { success: false, error: "Election ID is required to create a post." };
+  }
   if (!content || content.trim().length < 10) {
     return { success: false, error: "Post content must be at least 10 characters long." };
   }
@@ -31,19 +37,18 @@ export async function createForumPost(content: string): Promise<CreatePostResult
 
     const newPost: ForumPost = {
       id: `post-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      author: "Anonymous",
+      electionId: electionId,
+      author: "Anonymous", // Discussions are anonymous
       content: content,
       timestamp: new Date(),
       isFlagged: moderationResult.isFlagged,
       flagReason: moderationResult.isFlagged ? moderationResult.reason : undefined,
     };
 
-    // Simulate saving to DB
     mockPostsDb.unshift(newPost); 
-    // In a real app, you'd save newPost to your database here.
     // console.log("New post created (mock):", newPost);
 
-    revalidatePath("/discussions"); // Revalidate the discussions page to show the new post
+    revalidatePath(`/voting/${electionId}`); // Revalidate the specific election page to show the new post
 
     return {
       success: true,
@@ -54,18 +59,16 @@ export async function createForumPost(content: string): Promise<CreatePostResult
 
   } catch (error) {
     console.error("Error creating forum post:", error);
-    // Check if error is an instance of Error to safely access message
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred during moderation or post creation.";
     return { success: false, error: errorMessage };
   }
 }
 
-// Example function to get posts (replace with actual DB query)
-// This is not directly used by the client in this setup but shows how you might retrieve posts
-export async function getForumPosts(): Promise<ForumPost[]> {
-  // In a real app, fetch from database
-  // return mockPostsDb.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  // For this example, mock data is directly imported in the page component.
-  // This function is here as a conceptual placeholder.
-  return []; 
+export async function getForumPosts(electionId: string): Promise<ForumPost[]> {
+  // In a real app, fetch from database filtered by electionId
+  // For this example, filter the in-memory DB.
+  const electionPosts = mockPostsDb
+    .filter(post => post.electionId === electionId)
+    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  return electionPosts;
 }

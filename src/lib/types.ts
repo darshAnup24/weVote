@@ -3,6 +3,7 @@ export interface Candidate {
   name: string;
   description: string;
   imageUrl?: string; // Optional image for candidate
+  dataAiHint?: string; // For placeholder image generation
   votes?: number; // Optional: for displaying results if ever needed
 }
 
@@ -14,6 +15,9 @@ export interface Election {
   startDate: Date;
   endDate: Date;
   status: 'upcoming' | 'ongoing' | 'completed';
+  allowedVoters?: string[]; // List of emails allowed to vote
+  imageUrl?: string; // For the election card
+  dataAiHint?: string; // For placeholder image generation for election card
 }
 
 export interface ForumPost {
@@ -21,7 +25,14 @@ export interface ForumPost {
   author: string; // Will always be "Anonymous"
   content: string;
   timestamp: Date;
+  electionId: string; // To scope discussions to an election
   isFlagged?: boolean;
   flagReason?: string;
   // replies?: ForumPost[]; // For nested replies, if implemented
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
 }

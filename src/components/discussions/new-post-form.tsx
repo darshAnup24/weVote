@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { createForumPost } from "@/actions/forum-actions";
 import { useState } from "react";
 import { Send } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const formSchema = z.object({
   content: z.string()
@@ -25,7 +26,11 @@ const formSchema = z.object({
     .max(1000, { message: "Post must be at most 1000 characters long." }),
 });
 
-export function NewPostForm() {
+interface NewPostFormProps {
+  electionId: string;
+}
+
+export function NewPostForm({ electionId }: NewPostFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,14 +42,18 @@ export function NewPostForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!electionId) {
+      toast({ title: "Error", description: "Election context is missing.", variant: "destructive" });
+      return;
+    }
     setIsSubmitting(true);
     try {
-      const result = await createForumPost(values.content);
+      const result = await createForumPost(electionId, values.content);
       if (result.success) {
         toast({ 
           title: "Post Submitted!", 
           description: result.isFlagged ? `Your post is under review: ${result.reason}` : "Your anonymous post is now live.",
-          variant: result.isFlagged ? "default" : "default", // 'default' for normal, can use custom for flagged
+          variant: result.isFlagged ? "default" : "default",
           className: result.isFlagged ? "bg-muted border-muted-foreground/50" : "bg-accent text-accent-foreground border-accent-foreground/20",
         });
         form.reset();
@@ -59,9 +68,10 @@ export function NewPostForm() {
   }
 
   return (
-    <Card className="shadow-lg">
-      <CardHeader>
-        <CardTitle>Share Your Thoughts Anonymously</CardTitle>
+    <Card className="shadow-md mt-6">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-xl">Share Your Thoughts Anonymously</CardTitle>
+        <CardDescription>Discuss topics related to this election.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>

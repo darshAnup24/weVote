@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Vote, MessageSquare, Settings, PanelLeft, Shield } from "lucide-react";
+import { Home, Vote, MessageSquare, Settings, PanelLeft, Shield, PlusCircle, LogOut, UserCircle } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -18,6 +19,16 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import type { LucideIcon } from "lucide-react";
+import { mockCurrentUser } from "@/lib/mock-data"; // For simulated auth
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NavItem {
   href: string;
@@ -32,14 +43,60 @@ const Logo = () => (
   </div>
 );
 
+const UserNav = () => {
+  // In a real app, you'd get user from AuthContext
+  const user = mockCurrentUser;
+
+  if (!user) {
+    return (
+      <Button variant="outline" asChild>
+        <Link href="/login"> {/* Placeholder for actual login page */}
+          Login
+        </Link>
+      </Button>
+    );
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+          <Avatar className="h-9 w-9">
+            {/* <AvatarImage src={user.avatarUrl} alt={user.name || user.email} /> */}
+            <AvatarFallback>
+              {user.name ? user.name.charAt(0).toUpperCase() : <UserCircle className="h-6 w-6"/>}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{user.name || "User"}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user.email}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem disabled> {/* Placeholder for actual logout */}
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+
 const AppHeader = () => {
   const { isMobile, toggleSidebar } = useSidebar();
   const pathname = usePathname();
   
   let pageTitle = "Dashboard";
   if (pathname.startsWith("/voting")) pageTitle = "Secure Voting";
-  else if (pathname.startsWith("/discussions")) pageTitle = "Anonymous Discussions";
-
+  else if (pathname.startsWith("/elections/create")) pageTitle = "Create Election";
+  // Removed global discussions title
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6 shadow-sm">
@@ -50,6 +107,9 @@ const AppHeader = () => {
         </Button>
       )}
        <h1 className="text-xl font-semibold text-foreground">{pageTitle}</h1>
+       <div className="ml-auto">
+        <UserNav />
+      </div>
     </header>
   );
 };
@@ -59,7 +119,8 @@ export function MainAppLayout({ children }: { children: React.ReactNode }) {
   const navItems: NavItem[] = [
     { href: "/", label: "Dashboard", icon: Home },
     { href: "/voting", label: "Voting", icon: Vote },
-    { href: "/discussions", label: "Discussions", icon: MessageSquare },
+    { href: "/elections/create", label: "Create Election", icon: PlusCircle },
+    // Removed global discussions link
   ];
 
   return (
