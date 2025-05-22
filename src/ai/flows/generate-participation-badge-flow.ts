@@ -9,19 +9,19 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z}_ from 'genkit'; // Use z for schema definition
+import {z} from 'genkit'; // Use z for schema definition
 
-const GenerateParticipationBadgeInputSchema = z_.object({
-  electionTitle: z_.string().describe('The title of the election.'),
-  userName: z_.string().optional().describe('The name of the user who voted (optional).'),
+const GenerateParticipationBadgeInputSchema = z.object({
+  electionTitle: z.string().describe('The title of the election.'),
+  userName: z.string().optional().describe('The name of the user who voted (optional).'),
 });
-export type GenerateParticipationBadgeInput = z_.infer<typeof GenerateParticipationBadgeInputSchema>;
+export type GenerateParticipationBadgeInput = z.infer<typeof GenerateParticipationBadgeInputSchema>;
 
-const GenerateParticipationBadgeOutputSchema = z_.object({
-  badgeImageUrl: z_.string().describe("The data URI of the generated participation badge image. Expected format: 'data:image/png;base64,<encoded_data>'."),
-  message: z_.string().optional().describe("A text message accompanying the badge, if any was generated."),
+const GenerateParticipationBadgeOutputSchema = z.object({
+  badgeImageUrl: z.string().describe("The data URI of the generated participation badge image. Expected format: 'data:image/png;base64,<encoded_data>'."),
+  message: z.string().optional().describe("A text message accompanying the badge, if any was generated."),
 });
-export type GenerateParticipationBadgeOutput = z_.infer<typeof GenerateParticipationBadgeOutputSchema>;
+export type GenerateParticipationBadgeOutput = z.infer<typeof GenerateParticipationBadgeOutputSchema>;
 
 export async function generateParticipationBadge(
   input: GenerateParticipationBadgeInput
@@ -80,3 +80,4 @@ const generateParticipationBadgeFlow = ai.defineFlow(
     }
   }
 );
+
